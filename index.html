@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Age Calculator</title>
+  <title>Age and Zodiac Calculator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
@@ -59,29 +59,65 @@
       font-size: 0.9rem;
       color: #888;
     }
+    .zodiac {
+      margin-top: 0.8rem;
+      font-size: 1.05rem;
+      color: #5a3c1a;
+    }
+    .zodiac-sign {
+      font-weight: bold;
+      color: #eab308;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>How Old Are You?</h2>
+    <h2>How Old Are You? And What's Your Zodiac?</h2>
     <form id="ageForm">
       <label for="dob">Enter your date of birth:</label>
       <input type="date" id="dob" name="dob" required>
-      <button type="submit">Calculate Age</button>
+      <button type="submit">Calculate Age & Zodiac</button>
     </form>
     <div class="result" id="result"></div>
+    <div class="zodiac" id="zodiac"></div>
     <div class="footer">
-      Your age is calculated instantly. No data is stored.
+      Your age and zodiac sign are calculated instantly. No data is stored.
     </div>
   </div>
   <script>
+    function getZodiacSign(month, day) {
+      const zodiac = [
+        { sign: "Capricorn", from: [12, 22], to: [1, 19] },
+        { sign: "Aquarius", from: [1, 20], to: [2, 18] },
+        { sign: "Pisces", from: [2, 19], to: [3, 20] },
+        { sign: "Aries", from: [3, 21], to: [4, 19] },
+        { sign: "Taurus", from: [4, 20], to: [5, 20] },
+        { sign: "Gemini", from: [5, 21], to: [6, 20] },
+        { sign: "Cancer", from: [6, 21], to: [7, 22] },
+        { sign: "Leo", from: [7, 23], to: [8, 22] },
+        { sign: "Virgo", from: [8, 23], to: [9, 22] },
+        { sign: "Libra", from: [9, 23], to: [10, 22] },
+        { sign: "Scorpio", from: [10, 23], to: [11, 21] },
+        { sign: "Sagittarius", from: [11, 22], to: [12, 21] }
+      ];
+      for (let i = 0; i < zodiac.length; i++) {
+        const { sign, from, to } = zodiac[i];
+        if ((month === from[0] && day >= from[1]) || (month === to[0] && day <= to[1])) {
+          return sign;
+        }
+      }
+      return "Unknown";
+    }
+
     document.getElementById('ageForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const dobInput = document.getElementById('dob').value;
       const resultDiv = document.getElementById('result');
+      const zodiacDiv = document.getElementById('zodiac');
 
       if (!dobInput) {
         resultDiv.textContent = "Please enter your date of birth.";
+        zodiacDiv.textContent = "";
         return;
       }
 
@@ -96,10 +132,13 @@
 
       if (age < 0) {
         resultDiv.textContent = "Date of birth must be in the past!";
+        zodiacDiv.textContent = "";
         return;
       }
 
       resultDiv.textContent = `You are ${age} years old.`;
+      const zodiacSign = getZodiacSign(dob.getMonth() + 1, dob.getDate());
+      zodiacDiv.innerHTML = `Your zodiac sign is <span class='zodiac-sign'>${zodiacSign}</span>.`;
     });
   </script>
 </body>
