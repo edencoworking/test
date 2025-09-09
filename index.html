@@ -89,7 +89,7 @@
     <div class="location" id="location"></div>
     <div class="greeting" id="greeting"></div>
     <div class="footer">
-      Your age, zodiac sign, and location greeting are calculated instantly. No data is stored.
+      Your age, zodiac sign, and country greeting are calculated instantly. No data is stored.
     </div>
   </div>
   <script>
@@ -111,29 +111,68 @@
       "tr": "Merhaba, umarım iyisindir",
       "nl": "Hoi, ik hoop dat het goed met je gaat",
       "sv": "Hej, hoppas att du mår bra",
-      "pl": "Cześć, mam nadzieję, że wszystko w porządku",
+      "pl": "Cześć, mam nadzieję, że wszystko в порядке",
       "uk": "Привіт, сподіваюся, у тебе все добре",
       "th": "สวัสดี หวังว่าคุณจะสบายดี",
       "vi": "Chào, hy vọng bạn khỏe",
       // Add more as needed
     };
 
+    // Country code to primary language mapping
+    const countryPrimaryLanguage = {
+      "BR": "pt", // Brazil - Portuguese
+      "ES": "es", // Spain - Spanish
+      "CU": "es", // Cuba - Spanish
+      "RU": "ru", // Russia - Russian
+      "CN": "zh", // China - Chinese
+      "FR": "fr", // France - French
+      "DE": "de", // Germany - German
+      "IT": "it", // Italy - Italian
+      "JP": "ja", // Japan - Japanese
+      "KR": "ko", // South Korea - Korean
+      "PT": "pt", // Portugal - Portuguese
+      "MX": "es", // Mexico - Spanish
+      "AR": "es", // Argentina - Spanish
+      "CO": "es", // Colombia - Spanish
+      "CL": "es", // Chile - Spanish
+      "US": "en", // USA - English
+      "GB": "en", // UK - English
+      "CA": "en", // Canada - English (could add fr for Quebec)
+      "IN": "hi", // India - Hindi
+      "SA": "ar", // Saudi Arabia - Arabic
+      "AE": "ar", // UAE - Arabic
+      "EG": "ar", // Egypt - Arabic
+      "TR": "tr", // Turkey - Turkish
+      "NL": "nl", // Netherlands - Dutch
+      "SE": "sv", // Sweden - Swedish
+      "PL": "pl", // Poland - Polish
+      "UA": "uk", // Ukraine - Ukrainian
+      "TH": "th", // Thailand - Thai
+      "VN": "vi", // Vietnam - Vietnamese
+      "ID": "id", // Indonesia - Indonesian
+      // Add more mappings as needed
+    };
+
     let detectedLocation = "";
     let detectedLang = "en";
     let countryName = "";
+    let countryCode = "";
 
     // Fetch location and language info via IP geolocation API
     fetch("https://ipapi.co/json/")
       .then(response => response.json())
       .then(data => {
         detectedLocation = data.city ? `${data.city}, ${data.country_name}` : data.country_name;
-        detectedLang = data.languages ? data.languages.split(",")[0] : data.country_code.toLowerCase();
+        countryCode = data.country_code ? data.country_code.toUpperCase() : "";
         countryName = data.country_name || "";
-        document.getElementById('location').textContent = detectedLocation ? `Detected location: ${detectedLocation}` : "";
+        document.getElementById('location').textContent = detectedLocation ? `Detected country: ${countryName}` : "";
+        detectedLang = countryPrimaryLanguage[countryCode] || "en";
       })
       .catch(() => {
         detectedLocation = "";
         detectedLang = "en";
+        countryName = "";
+        countryCode = "";
         document.getElementById('location').textContent = "";
       });
 
@@ -195,7 +234,7 @@
       const zodiacSign = getZodiacSign(dob.getMonth() + 1, dob.getDate());
       zodiacDiv.innerHTML = `Your zodiac sign is <span class='zodiac-sign'>${zodiacSign}</span>.`;
 
-      // Get the greeting in the detected language, fallback to English
+      // Get the greeting in the country's primary language, fallback to English
       let greetingMsg = greetings[detectedLang] || greetings["en"];
       greetingDiv.textContent = greetingMsg;
     });
