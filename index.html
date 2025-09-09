@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Age and Zodiac Calculator</title>
+  <title>Age, Zodiac, and Greeting Calculator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
@@ -54,11 +54,6 @@
       font-size: 1.1rem;
       color: #222;
     }
-    .footer {
-      margin-top: 2rem;
-      font-size: 0.9rem;
-      color: #888;
-    }
     .zodiac {
       margin-top: 0.8rem;
       font-size: 1.05rem;
@@ -68,11 +63,22 @@
       font-weight: bold;
       color: #eab308;
     }
+    .greeting {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      color: #065f46;
+      font-style: italic;
+    }
+    .location {
+      margin-top: 0.3rem;
+      font-size: 1rem;
+      color: #444;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>How Old Are You? And What's Your Zodiac?</h2>
+    <h2>How Old Are You? What's Your Zodiac?</h2>
     <form id="ageForm">
       <label for="dob">Enter your date of birth:</label>
       <input type="date" id="dob" name="dob" required>
@@ -80,11 +86,57 @@
     </form>
     <div class="result" id="result"></div>
     <div class="zodiac" id="zodiac"></div>
+    <div class="location" id="location"></div>
+    <div class="greeting" id="greeting"></div>
     <div class="footer">
-      Your age and zodiac sign are calculated instantly. No data is stored.
+      Your age, zodiac sign, and location greeting are calculated instantly. No data is stored.
     </div>
   </div>
   <script>
+    // Greeting dictionary for most common languages
+    const greetings = {
+      "en": "Hi, I hope you are well",
+      "es": "Hola, espero que estés bien",
+      "fr": "Salut, j'espère que tu vas bien",
+      "de": "Hallo, ich hoffe, es geht dir gut",
+      "zh": "嗨，希望你一切都好",
+      "ru": "Привет, надеюсь, у тебя всё хорошо",
+      "ja": "こんにちは、お元気ですか",
+      "ko": "안녕, 잘 지내길 바래요",
+      "it": "Ciao, spero tu stia bene",
+      "pt": "Olá, espero que você esteja bem",
+      "ar": "مرحبًا، آمل أن تكون بخير",
+      "hi": "नमस्ते, आशा है आप ठीक हैं",
+      "id": "Hai, semoga kamu baik-baik saja",
+      "tr": "Merhaba, umarım iyisindir",
+      "nl": "Hoi, ik hoop dat het goed met je gaat",
+      "sv": "Hej, hoppas att du mår bra",
+      "pl": "Cześć, mam nadzieję, że wszystko w porządku",
+      "uk": "Привіт, сподіваюся, у тебе все добре",
+      "th": "สวัสดี หวังว่าคุณจะสบายดี",
+      "vi": "Chào, hy vọng bạn khỏe",
+      // Add more as needed
+    };
+
+    let detectedLocation = "";
+    let detectedLang = "en";
+    let countryName = "";
+
+    // Fetch location and language info via IP geolocation API
+    fetch("https://ipapi.co/json/")
+      .then(response => response.json())
+      .then(data => {
+        detectedLocation = data.city ? `${data.city}, ${data.country_name}` : data.country_name;
+        detectedLang = data.languages ? data.languages.split(",")[0] : data.country_code.toLowerCase();
+        countryName = data.country_name || "";
+        document.getElementById('location').textContent = detectedLocation ? `Detected location: ${detectedLocation}` : "";
+      })
+      .catch(() => {
+        detectedLocation = "";
+        detectedLang = "en";
+        document.getElementById('location').textContent = "";
+      });
+
     function getZodiacSign(month, day) {
       const zodiac = [
         { sign: "Capricorn", from: [12, 22], to: [1, 19] },
@@ -114,10 +166,12 @@
       const dobInput = document.getElementById('dob').value;
       const resultDiv = document.getElementById('result');
       const zodiacDiv = document.getElementById('zodiac');
+      const greetingDiv = document.getElementById('greeting');
 
       if (!dobInput) {
         resultDiv.textContent = "Please enter your date of birth.";
         zodiacDiv.textContent = "";
+        greetingDiv.textContent = "";
         return;
       }
 
@@ -133,12 +187,17 @@
       if (age < 0) {
         resultDiv.textContent = "Date of birth must be in the past!";
         zodiacDiv.textContent = "";
+        greetingDiv.textContent = "";
         return;
       }
 
       resultDiv.textContent = `You are ${age} years old.`;
       const zodiacSign = getZodiacSign(dob.getMonth() + 1, dob.getDate());
       zodiacDiv.innerHTML = `Your zodiac sign is <span class='zodiac-sign'>${zodiacSign}</span>.`;
+
+      // Get the greeting in the detected language, fallback to English
+      let greetingMsg = greetings[detectedLang] || greetings["en"];
+      greetingDiv.textContent = greetingMsg;
     });
   </script>
 </body>
